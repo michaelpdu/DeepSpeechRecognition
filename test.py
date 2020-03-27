@@ -11,12 +11,12 @@ from utils import get_data, data_hparams
 data_args = data_hparams()
 train_data = get_data(data_args)
 
-
 # 1.声学模型-----------------------------------
 from model_speech.cnn_ctc import Am, am_hparams
 
 am_args = am_hparams()
-am_args.vocab_size = len(train_data.am_vocab)
+am_args.vocab_size = len(train_data.am_vocab) #230#
+print('am_args:', am_args)
 am = Am(am_args)
 print('loading acoustic model...')
 am.ctc_model.load_weights('logs_am/model.h5')
@@ -25,8 +25,10 @@ am.ctc_model.load_weights('logs_am/model.h5')
 from model_language.transformer import Lm, lm_hparams
 
 lm_args = lm_hparams()
-lm_args.input_vocab_size = len(train_data.pny_vocab)
-lm_args.label_vocab_size = len(train_data.han_vocab)
+lm_args.input_vocab_size = len(train_data.pny_vocab) #230#
+print('input_vocab_size:', lm_args.input_vocab_size)
+lm_args.label_vocab_size = len(train_data.han_vocab) #252#
+print('label_vocab_size:', lm_args.label_vocab_size)
 lm_args.dropout_rate = 0.
 print('loading language model...')
 lm = Lm(lm_args)
@@ -40,7 +42,7 @@ with sess.as_default():
 # 3. 准备测试所需数据， 不必和训练数据一致，通过设置data_args.data_type测试，
 #    此处应设为'test'，我用了'train'因为演示模型较小，如果使用'test'看不出效果，
 #    且会出现未出现的词。
-data_args.data_type = 'train'
+data_args.data_type = 'test'
 data_args.shuffle = False
 data_args.batch_size = 1
 test_data = get_data(data_args)

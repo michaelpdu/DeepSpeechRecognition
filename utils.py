@@ -13,11 +13,11 @@ def data_hparams():
     params = tf.contrib.training.HParams(
         # vocab
         data_type='train',
-        data_path='data/',
+        data_path='/data1/voice_dataset/cn',
         thchs30=True,
         aishell=True,
-        prime=True,
-        stcmd=True,
+        prime=False,
+        stcmd=False,
         batch_size=1,
         data_length=10,
         shuffle=True)
@@ -59,6 +59,7 @@ class get_data():
                 read_files.append('thchs_test.txt')
             if self.aishell == True:
                 read_files.append('aishell_test.txt')
+        print('read_files:', read_files)
         self.wav_lst = []
         self.pny_lst = []
         self.han_lst = []
@@ -78,10 +79,13 @@ class get_data():
             self.han_lst = self.han_lst[:self.data_length]
         print('make am vocab...')
         self.am_vocab = self.mk_am_vocab(self.pny_lst)
+        print('am_vocab:', self.am_vocab)
         print('make lm pinyin vocab...')
         self.pny_vocab = self.mk_lm_pny_vocab(self.pny_lst)
+        print('pny_vocab:', self.pny_vocab)
         print('make lm hanzi vocab...')
         self.han_vocab = self.mk_lm_han_vocab(self.han_lst)
+        print('han_vocab', self.han_vocab)
 
     def get_am_batch(self):
         shuffle_list = [i for i in range(len(self.wav_lst))]
@@ -95,7 +99,7 @@ class get_data():
                 end = begin + self.batch_size
                 sub_list = shuffle_list[begin:end]
                 for index in sub_list:
-                    fbank = compute_fbank(self.data_path + self.wav_lst[index])
+                    fbank = compute_fbank(os.path.join(self.data_path,self.wav_lst[index]))
                     pad_fbank = np.zeros((fbank.shape[0] // 8 * 8 + 8, fbank.shape[1]))
                     pad_fbank[:fbank.shape[0], :] = fbank
                     label = self.pny2id(self.pny_lst[index], self.am_vocab)
